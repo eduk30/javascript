@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Exibir Imagem do Smartphone</title>
+</head>
+<body>
+    <h1>Imagem do Smartphone</h1>
+    <video id="remoteVideo" autoplay></video>
+    <script>
+        const remoteVideo = document.getElementById('remoteVideo');
+        let pc;
+
+        async function start() {
+            pc = new RTCPeerConnection();
+
+            // Adiciona um manipulador de eventos para quando o PC recebe um stream
+            pc.ontrack = event => {
+                remoteVideo.srcObject = event.streams[0];
+            };
+
+            // Cria uma oferta e envia para o smartphone
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            // Envia a oferta para o servidor e para o smartphone aqui
+
+            // Recebe a resposta do smartphone e define a descrição remota
+            // Aqui você deve receber a resposta do smartphone e definir a descrição remota
+        }
+
+        start();
+    </script>
+</body>
+</html>
