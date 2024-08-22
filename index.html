@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captura de Imagem</title>
+    <style>
+        #video {
+            width: 100%;
+            max-width: 600px;
+        }
+        #canvas {
+            display: none;
+        }
+        #capturedImage {
+            display: block;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Captura de Imagem</h1>
+    <video id="video" autoplay></video>
+    <button id="capture">Capturar Imagem</button>
+    <canvas id="canvas"></canvas>
+    <h2>Imagem Capturada:</h2>
+    <img id="capturedImage" src="" alt="Imagem Capturada">
+
+    <script>
+        // Configuração da câmera
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const capturedImage = document.getElementById('capturedImage');
+        const captureButton = document.getElementById('capture');
+        const context = canvas.getContext('2d');
+
+        // Solicita acesso à câmera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(error => {
+                console.error('Erro ao acessar a câmera:', error);
+            });
+
+        // Captura a imagem quando o botão é clicado
+        captureButton.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            capturedImage.src = canvas.toDataURL('image/png');
+        });
+    </script>
+</body>
+</html>
