@@ -1,35 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Smartphone - Captura de Imagem</title>
+    <title>Captura de Imagem</title>
 </head>
 <body>
-    <h1>Captura de Imagem</h1>
-    <button id="startButton">Iniciar Captura</button>
-    <video id="localVideo" autoplay></video>
+    <h1>Captura de Imagem do Smartphone</h1>
+    <video id="video" width="320" height="240" autoplay></video>
+    <button id="capture">Capturar Imagem</button>
+
     <script>
-        const startButton = document.getElementById('startButton');
-        const localVideo = document.getElementById('localVideo');
-        let mediaStream;
-        const socket = new WebSocket('ws://localhost:8080');
+        const video = document.getElementById('video');
+        const captureButton = document.getElementById('capture');
 
-        socket.onmessage = (event) => {
-            console.log('Mensagem recebida do servidor: ', event.data);
-        };
+        // Iniciar a câmera do smartphone
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(err => {
+                console.error("Não foi possível acessar a câmera: ", err);
+            });
 
-        startButton.onclick = async () => {
-            try {
-                mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
-                localVideo.srcObject = mediaStream;
-                // Envia o stream de vídeo para o servidor WebSocket
-                const videoTrack = mediaStream.getVideoTracks()[0];
-                const imageCapture = new ImageCapture(videoTrack);
-                const blob = await imageCapture.takePhoto();
-                socket.send(blob);
-            } catch (error) {
-                console.error('Erro ao acessar a câmera: ', error);
-            }
-        };
+        // Configurar WebSocket
+        const socket = new WebSocket('ws://<SEU_IP_PUBLICO>:8080');
+
+        socket.addEventListener('open', () => {
+            console.log('Conectado ao servidor WebSocket');
+        });
+
+        socket.addEventListener('message', (event) => {
+            console.log('Mensagem do servidor:', event.data);
+        });
+
+        // Capturar imagem e enviar para o servidor WebSocket
+        captureButton.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0);
+
+            // Converter a imagem para Base64 e enviar pelo WebSocket
+            const dataURL = canvas.toDataURL('image/jpeg');
+            socket.send(dataURL);
+        });
     </script>
 </body>
 </html>

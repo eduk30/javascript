@@ -1,21 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>PC - Exibir Imagem</title>
+    <title>Visualizar Imagem</title>
 </head>
 <body>
     <h1>Imagem do Smartphone</h1>
-    <img id="image" style="max-width: 100%;"/>
+    <img id="image" src="" alt="Imagem Capturada" style="width: 320px; height: 240px;">
+
     <script>
         const image = document.getElementById('image');
-        const socket = new WebSocket('ws://localhost:8080');
 
-        socket.onmessage = (event) => {
-            // Exibe a imagem recebida do smartphone
-            const blob = new Blob([event.data], { type: 'image/jpeg' });
-            const url = URL.createObjectURL(blob);
-            image.src = url;
-        };
+        // Configurar WebSocket
+        const socket = new WebSocket('ws://138.0.247.167:8080');
+
+        socket.addEventListener('open', () => {
+            console.log('Conectado ao servidor WebSocket');
+        });
+
+        socket.addEventListener('message', (event) => {
+            console.log('Imagem recebida do servidor');
+            image.src = event.data;
+        });
     </script>
 </body>
 </html>
