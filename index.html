@@ -1,33 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Captura de Imagem</title>
+    <title>Smartphone - Captura de Imagem</title>
 </head>
 <body>
     <h1>Captura de Imagem</h1>
     <button id="startButton">Iniciar Captura</button>
-    <button id="stopButton">Parar Captura</button>
     <video id="localVideo" autoplay></video>
     <script>
         const startButton = document.getElementById('startButton');
-        const stopButton = document.getElementById('stopButton');
         const localVideo = document.getElementById('localVideo');
         let mediaStream;
+        const socket = new WebSocket('ws://localhost:8080');
+
+        socket.onmessage = (event) => {
+            console.log('Mensagem recebida do servidor: ', event.data);
+        };
 
         startButton.onclick = async () => {
             try {
                 mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
                 localVideo.srcObject = mediaStream;
-                // Aqui você pode implementar o código para enviar o stream para o servidor
+                // Envia o stream de vídeo para o servidor WebSocket
+                const videoTrack = mediaStream.getVideoTracks()[0];
+                const imageCapture = new ImageCapture(videoTrack);
+                const blob = await imageCapture.takePhoto();
+                socket.send(blob);
             } catch (error) {
                 console.error('Erro ao acessar a câmera: ', error);
-            }
-        };
-
-        stopButton.onclick = () => {
-            if (mediaStream) {
-                mediaStream.getTracks().forEach(track => track.stop());
-                localVideo.srcObject = null;
             }
         };
     </script>

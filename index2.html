@@ -1,33 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Exibir Imagem do Smartphone</title>
+    <title>PC - Exibir Imagem</title>
 </head>
 <body>
     <h1>Imagem do Smartphone</h1>
-    <video id="remoteVideo" autoplay></video>
+    <img id="image" style="max-width: 100%;"/>
     <script>
-        const remoteVideo = document.getElementById('remoteVideo');
-        let pc;
+        const image = document.getElementById('image');
+        const socket = new WebSocket('ws://localhost:8080');
 
-        async function start() {
-            pc = new RTCPeerConnection();
-
-            // Adiciona um manipulador de eventos para quando o PC recebe um stream
-            pc.ontrack = event => {
-                remoteVideo.srcObject = event.streams[0];
-            };
-
-            // Cria uma oferta e envia para o smartphone
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-            // Envia a oferta para o servidor e para o smartphone aqui
-
-            // Recebe a resposta do smartphone e define a descrição remota
-            // Aqui você deve receber a resposta do smartphone e definir a descrição remota
-        }
-
-        start();
+        socket.onmessage = (event) => {
+            // Exibe a imagem recebida do smartphone
+            const blob = new Blob([event.data], { type: 'image/jpeg' });
+            const url = URL.createObjectURL(blob);
+            image.src = url;
+        };
     </script>
 </body>
 </html>
